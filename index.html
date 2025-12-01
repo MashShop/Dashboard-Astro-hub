@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Cheat Dashboard</title>
+    <title>Giveaway Wheel Picker</title>
     <style>
         * {
             margin: 0;
@@ -11,273 +11,533 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
         body {
-            background: url('https://images.unsplash.com/photo-1454789548928-9efd52dc4031?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
-            background-size: cover;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             color: #fff;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
         }
-        
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            backdrop-filter: blur(5px);
-            background-color: rgba(0, 0, 0, 0.7);
-            min-height: 100vh;
+            width: 100%;
+            text-align: center;
         }
-        
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            border-bottom: 2px solid #ff4757;
             margin-bottom: 30px;
         }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #ff4757;
-            text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
-        
-        .user-info {
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+        .main-content {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
         }
-        
-        .avatar {
+        .wheel-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        .list-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+        #wheelCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background-color: #ff4757;
+            background: #ff4757;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            z-index: 10;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            gap: 8px;
         }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .card {
-            background: rgba(20, 20, 20, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            border-left: 4px solid #ff4757;
-            transition: transform 0.3s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(255, 71, 87, 0.2);
-        }
-        
-        .card h3 {
-            color: #ff4757;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-        
-        .card p {
-            color: #ccc;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .btn {
-            background: #ff4757;
+        #spinBtn {
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 219, 222, 0.4);
+        }
+        #spinBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 7px 20px rgba(0, 219, 222, 0.6);
+        }
+        #resetBtn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        #resetBtn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        #winnerDisplay {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border-left: 5px solid #00dbde;
+            display: none;
+        }
+        #winnerDisplay.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .winner-name {
+            font-size: 1.8rem;
             font-weight: bold;
-            transition: background 0.3s;
+            color: #00ffaa;
+            margin: 10px 0;
         }
-        
-        .btn:hover {
-            background: #ff6b81;
-        }
-        
-        .script-box {
-            background: rgba(10, 10, 10, 0.9);
+        .winner-id {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
             border-radius: 5px;
-            padding: 15px;
-            margin-top: 20px;
-            border: 1px solid #333;
+            display: inline-block;
+            margin-top: 5px;
         }
-        
-        .script-box pre {
-            color: #7bed9f;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .participant-list {
+            text-align: left;
+            margin-top: 15px;
         }
-        
+        .participant-item {
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+        .participant-number {
+            background: rgba(0, 219, 222, 0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            min-width: 30px;
+            text-align: center;
+        }
+        .participant-info {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+        .participant-name {
+            font-weight: bold;
+        }
+        .participant-id {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-family: monospace;
+        }
+        .list-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #00dbde;
+            border-bottom: 2px solid rgba(0, 219, 222, 0.3);
+            padding-bottom: 8px;
+        }
+        .total-count {
+            background: rgba(252, 0, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+        footer {
+            margin-top: 30px;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
         .copy-btn {
-            background: #2ed573;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            font-size: 0.9rem;
             margin-top: 10px;
         }
-        
         .copy-btn:hover {
-            background: #20bf6b;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px;
-            border-top: 1px solid #333;
-            margin-top: 30px;
-            color: #777;
-            font-size: 14px;
+            background: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="logo">ROBLOX CHEAT v3.2</div>
-            <div class="user-info">
-                <span>Premium User</span>
-                <div class="avatar">AD</div>
-            </div>
+            <h1>🎡 Giveaway Wheel Picker</h1>
+            <div class="subtitle">Spin the wheel to randomly select a winner from 58 participants</div>
         </header>
         
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>Aimbot</h3>
-                <p>Auto-lock pada musuh dengan presisi tinggi. Dapat disesuaikan untuk berbagai senjata.</p>
-                <div class="script-box">
-                    <pre>-- Aimbot Script
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local camera = workspace.CurrentCamera
-
--- Config
-local smoothness = 5
-local fov = 100
-
--- Main loop
-game:GetService("RunService").RenderStepped:Connect(function()
-    -- Target finding logic here
-end)</pre>
-                    <button class="btn copy-btn">Copy Script</button>
+        <div class="main-content">
+            <div class="wheel-section">
+                <div class="wheel-container">
+                    <div class="pointer"></div>
+                    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button id="spinBtn">
+                        <span>🎯</span> SPIN THE WHEEL
+                    </button>
+                    <button id="resetBtn">
+                        <span>🔄</span> RESET
+                    </button>
+                </div>
+                
+                <div id="winnerDisplay">
+                    <div>🎉 WINNER SELECTED 🎉</div>
+                    <div class="winner-name" id="winnerName">-</div>
+                    <div class="winner-id" id="winnerId">-</div>
+                    <button class="copy-btn" id="copyBtn">
+                        <span>📋</span> Copy Winner Info
+                    </button>
                 </div>
             </div>
             
-            <div class="card">
-                <h3>Wallhack</h3>
-                <p>Lihat melalui dinding dan temukan posisi musuh dengan mudah.</p>
-                <div class="script-box">
-                    <pre>-- Wallhack Script
-local function applyWallhack(part)
-    part.Material = Enum.Material.ForceField
-    part.Transparency = 0.5
-    part.Color = Color3.fromRGB(255, 0, 0)
-end
-
--- Apply to all existing parts
-for _, part in pairs(workspace:GetDescendants()) do
-    if part:IsA("BasePart") then
-        applyWallhack(part)
-    end
-end
-
--- Apply to new parts
-workspace.DescendantAdded:Connect(function(part)
-    if part:IsA("BasePart") then
-        applyWallhack(part)
-    end
-end)</pre>
-                    <button class="btn copy-btn">Copy Script</button>
+            <div class="list-section">
+                <div class="list-title">
+                    Participants List <span class="total-count">58 Total</span>
+                </div>
+                <div class="participant-list" id="participantList">
+                    <!-- Participants will be loaded here -->
                 </div>
             </div>
-            
-            <div class="card">
-                <h3>Speed Hack</h3>
-                <p>Tingkatkan kecepatan karakter Anda melebihi batas normal.</p>
-                <div class="script-box">
-                    <pre>-- Speed Hack Script
-local player = game:GetService("Players").LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
--- Set speed (default is 16)
-humanoid.WalkSpeed = 50
-humanoid.JumpPower = 100
-
--- Prevent speed reset
-character:WaitForChild("Humanoid").Running:Connect(function(speed)
-    if speed &lt; humanoid.WalkSpeed then
-        humanoid.WalkSpeed = 50
-    end
-end)</pre>
-                    <button class="btn copy-btn">Copy Script</button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h3>Auto Farm</h3>
-                <p>Otomatiskan proses farming untuk mendapatkan mata uang atau item.</p>
-                <div class="script-box">
-                    <pre>-- Auto Farm Script
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-
--- Target detection
-local function findNearestTarget()
-    -- Implementation here
-    return target
-end
-
--- Main farming loop
-while true do
-    local target = findNearestTarget()
-    if target then
-        -- Attack logic here
-    end
-    wait(0.1)
-end</pre>
-                    <button class="btn copy-btn">Copy Script</button>
-                </div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin: 30px 0;">
-            <button class="btn" style="padding: 15px 30px; font-size: 16px;">Inject All Scripts</button>
         </div>
         
         <footer>
-            ROBLOX CHEAT DASHBOARD | v3.2 | © 2023 Not affiliated with Roblox Corporation
+            <p>Giveaway Wheel Picker • Participants: 58 • Prize: 500</p>
         </footer>
     </div>
-    
+
     <script>
-        // Simple copy functionality
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const script = this.parentElement.querySelector('pre').textContent;
-                navigator.clipboard.writeText(script).then(() => {
-                    const originalText = this.textContent;
-                    this.textContent = 'Copied!';
-                    setTimeout(() => {
-                        this.textContent = originalText;
-                    }, 2000);
-                });
+        // Data peserta dari screenshots Anda
+        const participants = [
+            { id: "1107650976665579540", name: "User" },
+            { id: "1321613606013505619", name: "! ! 💬💬/ven" },
+            { id: "1321613606013505619", name: "User" },
+            { id: "908392254098518026", name: "User" },
+            { id: "1186156500494852208", name: "User" },
+            { id: "1355859204090630184", name: "User" },
+            { id: "1086544709897433129", name: "User" },
+            { id: "1435585814758297721", name: "User" },
+            { id: "800247973429772288", name: "User" },
+            { id: null, name: "GoldMod" },
+            { id: "1097469681025155072", name: "User" },
+            { id: "1262262928422338636", name: "User" },
+            { id: "676130779004403719", name: "User" },
+            { id: "1012415289931083918", name: "User" },
+            { id: "1424834685472604170", name: "User" },
+            { id: "661609343061459004", name: "User" },
+            { id: "324092687705833473", name: "User" },
+            { id: "487646587724759051", name: "User" },
+            { id: null, name: "BROKIE" },
+            { id: "1131692453519437947", name: "User" },
+            { id: null, name: "blackkopi" },
+            { id: "1330437713308160105", name: "User" },
+            { id: "1392458328877170778", name: "User" },
+            { id: null, name: "troll (tds dev)" },
+            { id: "914029169204154369", name: "User" },
+            { id: "660178997166211133", name: "User" },
+            { id: "926269985410654218", name: "User" },
+            { id: "950507161946034246", name: "User" },
+            { id: null, name: "omarwashere" },
+            { id: "1181055195619266630", name: "User" },
+            { id: "393356517174280192", name: "User" },
+            { id: null, name: "! Kančo" },
+            { id: "950900438046216202", name: "User" },
+            { id: "1126772581912039454", name: "User" },
+            { id: "689279030125658150", name: "User" },
+            { id: "1155029177267933184", name: "User" },
+            { id: "652914262255337501", name: "User" },
+            { id: "756532358982795364", name: "User" },
+            { id: "948552193122914364", name: "User" },
+            { id: null, name: "nobb" },
+            { id: "1353062689273811006", name: "User" },
+            { id: "979889507199504444", name: "User" },
+            { id: "1043552668582412299", name: "User" },
+            { id: "1048757807614263356", name: "User" },
+            { id: "1415652444196573316", name: "User" },
+            { id: null, name: "YOSKO" },
+            { id: "1372141025035943946", name: "User" },
+            { id: null, name: "zq | ping for help" },
+            { id: "913809777195360256", name: "User" },
+            { id: "876478272798621736", name: "User" },
+            { id: "1355921915503579220", name: "User" },
+            { id: "1436393898271572159", name: "User" },
+            { id: "935281657131458620", name: "User" },
+            { id: "1167721062134456341", name: "User" },
+            { id: null, name: "Agataha" },
+            { id: "697351312026763334", name: "User" },
+            { id: "1254609982557782038", name: "User" },
+            { id: "1200807453315575824", name: "User" }
+        ];
+
+        // Format nama untuk display
+        const displayNames = [
+            "User (1107650976665579540)",
+            "! ! 💬💬/ven",
+            "User (1321613606013505619)",
+            "User (908392254098518026)",
+            "User (1186156500494852208)",
+            "User (1355859204090630184)",
+            "User (1086544709897433129)",
+            "User (1435585814758297721)",
+            "User (800247973429772288)",
+            "GoldMod",
+            "User (1097469681025155072)",
+            "User (1262262928422338636)",
+            "User (676130779004403719)",
+            "User (1012415289931083918)",
+            "User (1424834685472604170)",
+            "User (661609343061459004)",
+            "User (324092687705833473)",
+            "User (487646587724759051)",
+            "BROKIE",
+            "User (1131692453519437947)",
+            "blackkopi",
+            "User (1330437713308160105)",
+            "User (1392458328877170778)",
+            "troll (tds dev)",
+            "User (914029169204154369)",
+            "User (660178997166211133)",
+            "User (926269985410654218)",
+            "User (950507161946034246)",
+            "omarwashere",
+            "User (1181055195619266630)",
+            "User (393356517174280192)",
+            "! Kančo",
+            "User (950900438046216202)",
+            "User (1126772581912039454)",
+            "User (689279030125658150)",
+            "User (1155029177267933184)",
+            "User (652914262255337501)",
+            "User (756532358982795364)",
+            "User (948552193122914364)",
+            "nobb",
+            "User (1353062689273811006)",
+            "User (979889507199504444)",
+            "User (1043552668582412299)",
+            "User (1048757807614263356)",
+            "User (1415652444196573316)",
+            "YOSKO",
+            "User (1372141025035943946)",
+            "zq | ping for help",
+            "User (913809777195360256)",
+            "User (876478272798621736)",
+            "User (1355921915503579220)",
+            "User (1436393898271572159)",
+            "User (935281657131458620)",
+            "User (1167721062134456341)",
+            "Agataha",
+            "User (697351312026763334)",
+            "User (1254609982557782038)",
+            "User (1200807453315575824)"
+        ];
+
+        let isSpinning = false;
+        let currentRotation = 0;
+        let selectedWinner = null;
+
+        // Inisialisasi canvas
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(centerX, centerY) - 10;
+
+        // Warna untuk segmen roda
+        const colors = [
+            '#FF6B6B', '#4ECDC4', '#FFD166', '#06D6A0', '#118AB2',
+            '#073B4C', '#EF476F', '#7209B7', '#3A86FF', '#FB5607',
+            '#8338EC', '#FF006E', '#FFBE0B', '#3A86FF', '#1D3557'
+        ];
+
+        // Gambar roda
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const segmentAngle = (2 * Math.PI) / participants.length;
+            
+            for (let i = 0; i < participants.length; i++) {
+                const startAngle = i * segmentAngle + currentRotation;
+                const endAngle = (i + 1) * segmentAngle + currentRotation;
+                
+                // Gambar segmen
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                
+                // Warna segmen
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+                
+                // Teks pada segmen
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + segmentAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Arial';
+                
+                const displayText = participants[i].name === "User" 
+                    ? `ID: ${participants[i].id?.substring(0, 6)}...` 
+                    : participants[i].name.substring(0, 10);
+                
+                ctx.fillText(displayText, radius - 10, 5);
+                ctx.restore();
+            }
+            
+            // Gambar pusat roda
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+        }
+
+        // Tampilkan daftar peserta
+        function renderParticipantList() {
+            const listContainer = document.getElementById('participantList');
+            listContainer.innerHTML = '';
+            
+            participants.forEach((participant, index) => {
+                const item = document.createElement('div');
+                item.className = 'participant-item';
+                
+                const numberSpan = document.createElement('span');
+                numberSpan.className = 'participant-number';
+                numberSpan.textContent = index + 1;
+                
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'participant-info';
+                
+                const nameSpan = document.createElement('div');
+                nameSpan.className = 'participant-name';
+                nameSpan.textContent = participant.name === "User" 
+                    ? `User (ID: ${participant.id})` 
+                    : participant.name;
+                
+                const idSpan = document.createElement('div');
+                idSpan.className = 'participant-id';
+                idSpan.textContent = participant.id 
+                    ? `<@${participant.id}>` 
+                    : 'No ID available';
+                
+                infoDiv.appendChild(nameSpan);
+                infoDiv.appendChild(idSpan);
+                
+                item.appendChild(numberSpan);
+                item.appendChild(infoDiv);
+                listContainer.appendChild(item);
             });
-        });
-    </script>
-</body>
-</html>
+        }
+
+        // Putar roda
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            
+            const spinDuration = 3000; // 3 detik
+            const startTime = Date.now();
+            const randomFactor = Math.random() * 0.3 + 0.7; // Faktor acak untuk putaran
+            const extraRotations = 5 + Math.floor(Math.random() * 3); // Putaran ekstra
+            const targetRotation = currentRotation + (2 * Math.PI * extraRotations) + (Math.random() * 2 * Math.PI);
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // Easing function
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                currentRotation += (targetRotation - currentRotation) * easeOut * 0.1;
+                
+                drawWheel();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Selesai berputar
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                    
+                    // Hitung pemenang
+                    const normalizedRotation = ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+                    const segmentAngle = (2 * Math.PI) / participants.length;
+                    let winnerIndex = Math.floor((2 * Math.PI - normalizedRotation) / segmentAngle) % participants.length;
+                    
+                    // Pastikan index dalam rentang
+                    winnerIndex = (winnerIndex + participants.length) % participants.length;
+                    
+                    selectedWinner = participants[winnerIndex];
+                    const displayWinner = displayNames[winnerIndex];
+                    
+                    // Tampilkan pemenang
+                    document.getElementById('winnerName').textContent = displayWinner;
+                    document.getElementById('winnerId').textContent = selectedWinner.id 
+                        ? `Dis
